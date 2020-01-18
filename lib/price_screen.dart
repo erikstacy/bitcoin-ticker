@@ -12,7 +12,9 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
 
   String selectedCurrency = 'USD';
-  String currentPrice = '';
+  String btcPrice = '';
+  String ethPrice = '';
+  String ltcPrice = '';
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -58,14 +60,28 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 
   void getNetworkData() async {
-    // Get the api reference
-    String url = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/BTC$selectedCurrency';
-    NetworkHelper networkHelper = NetworkHelper(url);
+    // Get the btc api data
+    String btcUrl = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/${cryptoList[0]}$selectedCurrency';
+    NetworkHelper btcHelper = NetworkHelper(btcUrl);
+    var btcData = await btcHelper.getData();
+    double tempBtcPrice = btcData['last'];
 
-    var bitcoinData = await networkHelper.getData();
-    double tempPrice = bitcoinData['last'];
+    // Get the eth api data
+    String ethUrl = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/${cryptoList[1]}$selectedCurrency';
+    NetworkHelper ethHelper = NetworkHelper(ethUrl);
+    var ethData = await ethHelper.getData();
+    double tempEthPrice = ethData['last'];
+
+    // Get the ltc api data
+    String ltcUrl = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/${cryptoList[2]}$selectedCurrency';
+    NetworkHelper ltcHelper = NetworkHelper(ltcUrl);
+    var ltcData = await ltcHelper.getData();
+    double tempLtcPrice = ltcData['last'];
+
     setState(() {
-      currentPrice = tempPrice.toString();
+      btcPrice = tempBtcPrice.toString();
+      ethPrice = tempEthPrice.toString();
+      ltcPrice = tempLtcPrice.toString();
     });
   }
 
@@ -87,23 +103,24 @@ class _PriceScreenState extends State<PriceScreen> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $currentPrice $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
+            child: Column(
+              children: <Widget>[
+                CryptoCard(
+                  currentPrice: btcPrice,
+                  selectedCurrency: selectedCurrency,
+                  selectedCrypto: cryptoList[0],
                 ),
-              ),
+                CryptoCard(
+                  currentPrice: ethPrice,
+                  selectedCurrency: selectedCurrency,
+                  selectedCrypto: cryptoList[1],
+                ),
+                CryptoCard(
+                  currentPrice: ltcPrice,
+                  selectedCurrency: selectedCurrency,
+                  selectedCrypto: cryptoList[2],
+                ),
+              ],
             ),
           ),
           Container(
@@ -114,6 +131,41 @@ class _PriceScreenState extends State<PriceScreen> {
             child: Platform.isIOS ? iOSPicker(): androidDropdown(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CryptoCard extends StatelessWidget {
+  
+  CryptoCard({
+    @required this.currentPrice,
+    @required this.selectedCurrency,
+    @required this.selectedCrypto,
+  });
+
+  final String currentPrice;
+  final String selectedCurrency;
+  final String selectedCrypto;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.lightBlueAccent,
+      elevation: 5.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 60.0),
+        child: Text(
+          '1 $selectedCrypto = $currentPrice $selectedCurrency',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20.0,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
