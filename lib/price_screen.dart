@@ -32,6 +32,7 @@ class _PriceScreenState extends State<PriceScreen> {
         setState(() {
           selectedCurrency = value;
         });
+        getNetworkData();
       },
     );
   }
@@ -55,7 +56,7 @@ class _PriceScreenState extends State<PriceScreen> {
 
   void getNetworkData() async {
     // Get the api reference
-    String url = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/BTCUSD';
+    String url = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/BTC$selectedCurrency';
     NetworkHelper networkHelper = NetworkHelper(url);
 
     var bitcoinData = await networkHelper.getData();
@@ -92,7 +93,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = \$$currentPrice $selectedCurrency',
+                  '1 BTC = $currentPrice $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
