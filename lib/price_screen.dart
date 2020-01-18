@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'coin_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
+import 'services/networking.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
 
   String selectedCurrency = 'USD';
+  String currentPrice = '';
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -28,7 +30,7 @@ class _PriceScreenState extends State<PriceScreen> {
       items: dropdownItems,
       onChanged: (value) {
         setState(() {
-          selectedCurrency = value;  
+          selectedCurrency = value;
         });
       },
     );
@@ -49,6 +51,24 @@ class _PriceScreenState extends State<PriceScreen> {
       },
       children: pickerItems,
     );
+  }
+
+  void getNetworkData() async {
+    // Get the api reference
+    String url = 'https://apiv2.bitcoinaverage.com/indices/global/ticker/BTCUSD';
+    NetworkHelper networkHelper = NetworkHelper(url);
+
+    var bitcoinData = await networkHelper.getData();
+    double tempPrice = bitcoinData['last'];
+    setState(() {
+      currentPrice = tempPrice.toString();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getNetworkData();
   }
 
   @override
@@ -72,7 +92,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = \$$currentPrice $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
